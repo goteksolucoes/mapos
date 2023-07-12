@@ -401,6 +401,7 @@ $periodo = $this->input->get('periodo');
                             <option value="Dinheiro">Dinheiro</option>
                             <option value="Pix">Pix</option>
                             <option value="Boleto">Boleto</option>
+                            <option value="Link">Link</option>
                             <option value="Cartão de Crédito">Cartão de Crédito</option>
                             <option value="Cartão de Débito">Cartão de Débito</option>
                             <option value="Cheque">Cheque</option>
