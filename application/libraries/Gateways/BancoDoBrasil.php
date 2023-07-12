@@ -218,6 +218,7 @@ class BancoDoBrasil extends BasePaymentGateway
             'observacoes' => 'Lançamento gerado a partir da cobrança',
             'forma_pgto' => 'Boleto',
             'tipo' => 'receita',
+            'vendas_id' => $id,
             'usuarios_id' => 1,
         ];
 
