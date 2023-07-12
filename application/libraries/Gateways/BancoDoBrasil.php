@@ -207,6 +207,22 @@ class BancoDoBrasil extends BasePaymentGateway
             'message' => 'Pagamento referente a ' . $title,
         ];
 
+        // Adiciona financeiro apos criação da cobranca
+        $fin_data = [
+            'descricao' => 'Financeiro referente cobrança: ' . $title,
+            'valor' => $this->valorTotal($totalProdutos, $totalServicos, $totalDesconto, $tipoDesconto),
+            'data_vencimento' => $expirationDate,
+            'data_pagamento' => $expirationDate,
+            'baixado' => 0,
+            'cliente_fornecedor' => $entity->idClientes,
+            'observacoes' => 'Lançamento gerado a partir da cobrança',
+            'forma_pgto' => 'Boleto',
+            'tipo' => 'receita',
+            'usuarios_id' => 1,
+        ];
+
+        $this->ci->financeiro_model->add('lancamentos', $fin_data);
+
         if ($id = $this->ci->cobrancas_model->add('cobrancas', $data, true)) {
             $data['idCobranca'] = $id;
             log_info('Cobrança criada com successo. ID: ' . $id);
