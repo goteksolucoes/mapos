@@ -391,12 +391,11 @@ class Asaas extends BasePaymentGateway
         $fin_data = [
             'descricao' => 'Financeiro referente cobrança: ' . $title,
             'valor' => $this->valorTotal($totalProdutos, $totalServicos, $totalDesconto, $tipoDesconto),
-            'data_vencimento' => $result->dueDate,
-            'data_pagamento' => $result->dueDate,
+            'data_vencimento' => $expirationDate,
             'baixado' => 0,
             'cliente_fornecedor' => $entity->idClientes,
             'observacoes' => 'Lançamento gerado a partir da cobrança',
-            'forma_pgto' => 'Boleto',
+            'forma_pgto' => 'Link',
             'tipo' => 'receita',
             'usuarios_id' => 1,
         ];
