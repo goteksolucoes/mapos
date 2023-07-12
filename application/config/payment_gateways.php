@@ -104,5 +104,26 @@ $config['payment_gateways'] = [
             'DUNNING_RECEIVED' => 'Recuperada',
             'AWAITING_RISK_ANALYSIS' => 'Pagamento em análise',
         ]
+    ],
+    'BancoDoBrasil' => [
+        'name' => 'Banco do Brasil',
+        'library_name' => 'BancoDoBrasil',
+        'endPoints' => 2,
+        //1-Produção; 2- Homologação
+        'client_id' => '',
+        'client_secret' => '',
+        'application_key' => '',
+        'numeroConvenio' => '',
+        //vazio - um token novo será gerado a cada requisição;
+        'boleto_expiration' => 'P3D',
+        'payment_methods' => [
+            [
+                'name' => 'Boleto',
+                'value' => 'boleto',
+            ]
+        ],
+        'transaction_status' => [
+            '200' => 'Aguardando pagamento',
+        ]
     ]
 ];
