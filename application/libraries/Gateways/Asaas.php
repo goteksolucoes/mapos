@@ -21,6 +21,7 @@ class Asaas extends BasePaymentGateway
         $this->ci->load->model('mapos_model');
         $this->ci->load->model('email_model');
         $this->ci->load->model('clientes_model');
+        $this->ci->load->model('financeiro_model');
 
         $asaasConfig = $this->ci->config->item('payment_gateways')['Asaas'];
         $this->asaasConfig = $asaasConfig;
@@ -163,14 +164,18 @@ class Asaas extends BasePaymentGateway
         $servicos = $tipo === PaymentGateway::PAYMENT_TYPE_OS
             ? $this->ci->Os_model->getServicos($id)
             : [];
-        
-        $desconto = [$tipo === PaymentGateway::PAYMENT_TYPE_OS
+
+        $desconto = [
+            $tipo === PaymentGateway::PAYMENT_TYPE_OS
             ? $this->ci->Os_model->getById($id)
-            : $this->ci->vendas_model->getById($id)];
-            
-        $tipo_desconto = [$tipo === PaymentGateway::PAYMENT_TYPE_OS
+            : $this->ci->vendas_model->getById($id)
+        ];
+
+        $tipo_desconto = [
+            $tipo === PaymentGateway::PAYMENT_TYPE_OS
             ? $this->ci->Os_model->getById($id)
-            : $this->ci->vendas_model->getById($id)];
+            : $this->ci->vendas_model->getById($id)
+        ];
 
         $totalProdutos = array_reduce(
             $produtos,
@@ -226,7 +231,7 @@ class Asaas extends BasePaymentGateway
         ];
 
         $result = $this->asaasApi->Cobranca()->create($body);
-        if (!$result || $result->errors) {
+        if (!$result) {
             throw new \Exception('Erro ao chamar Asaas!');
         }
 
@@ -253,6 +258,22 @@ class Asaas extends BasePaymentGateway
             $data['vendas_id'] = $id;
         }
 
+        // Adiciona financeiro apos criação da cobranca
+        $fin_data = [
+            'descricao' => 'Financeiro referente cobrança: ' . $title,
+            'valor' => $this->valorTotal($totalProdutos, $totalServicos, $totalDesconto, $tipoDesconto),
+            'data_vencimento' => $result->dueDate,
+            'data_pagamento' => $result->dueDate,
+            'baixado' => 0,
+            'cliente_fornecedor' => $entity->idClientes,
+            'observacoes' => 'Lançamento gerado a partir da cobrança',
+            'forma_pgto' => 'Boleto',
+            'tipo' => 'receita',
+            'usuarios_id' => 1,
+        ];
+
+        $this->ci->financeiro_model->add('lancamentos', $fin_data);
+
         if ($id = $this->ci->cobrancas_model->add('cobrancas', $data, true)) {
             $data['idCobranca'] = $id;
             log_info('Cobrança criada com successo. ID: ' . $result->id);
@@ -272,13 +293,17 @@ class Asaas extends BasePaymentGateway
         $servicos = $tipo === PaymentGateway::PAYMENT_TYPE_OS
             ? $this->ci->Os_model->getServicos($id)
             : [];
-        $tipo_desconto = [$tipo === PaymentGateway::PAYMENT_TYPE_OS
+        $tipo_desconto = [
+            $tipo === PaymentGateway::PAYMENT_TYPE_OS
             ? $this->ci->Os_model->getById($id)
-            : $this->ci->vendas_model->getById($id)];
+            : $this->ci->vendas_model->getById($id)
+        ];
 
-        $desconto = [$tipo === PaymentGateway::PAYMENT_TYPE_OS
+        $desconto = [
+            $tipo === PaymentGateway::PAYMENT_TYPE_OS
             ? $this->ci->Os_model->getById($id)
-            : $this->ci->vendas_model->getById($id)];
+            : $this->ci->vendas_model->getById($id)
+        ];
 
 
         $totalProdutos = array_reduce(
@@ -337,7 +362,7 @@ class Asaas extends BasePaymentGateway
         ];
 
         $result = $this->asaasApi->LinkPagamento()->create($body);
-        if (!$result || $result->errors) {
+        if (!$result) {
             throw new \Exception('Erro ao chamar Asaas!');
         }
 
@@ -361,6 +386,22 @@ class Asaas extends BasePaymentGateway
         } else {
             $data['vendas_id'] = $id;
         }
+
+        // Adiciona financeiro apos criação da cobranca
+        $fin_data = [
+            'descricao' => 'Financeiro referente cobrança: ' . $title,
+            'valor' => $this->valorTotal($totalProdutos, $totalServicos, $totalDesconto, $tipoDesconto),
+            'data_vencimento' => $result->dueDate,
+            'data_pagamento' => $result->dueDate,
+            'baixado' => 0,
+            'cliente_fornecedor' => $entity->idClientes,
+            'observacoes' => 'Lançamento gerado a partir da cobrança',
+            'forma_pgto' => 'Boleto',
+            'tipo' => 'receita',
+            'usuarios_id' => 1,
+        ];
+
+        $this->ci->financeiro_model->add('lancamentos', $fin_data);
 
         if ($id = $this->ci->cobrancas_model->add('cobrancas', $data, true)) {
             $data['idCobranca'] = $id;
